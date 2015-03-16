@@ -1,6 +1,4 @@
-package nl.sijpesteijn.lasforce.services;
-
-import nl.sijpesteijn.lasforce.domain.laser.Message;
+package nl.sijpesteijn.lasforce.domain.laser;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -8,15 +6,18 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Gijs Sijpesteijn
  */
 @XmlRootElement
-public class AnimationInfo implements Message {
+public class AnimationDataRequest {
     private int id;
     private String name;
     private String lastUpdate;
     private int frameRate;
-    private int repeat;
 
-    public String getLastUpdate() {
-        return lastUpdate;
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
     }
 
     public String getName() {
@@ -25,6 +26,10 @@ public class AnimationInfo implements Message {
 
     public void setName(String name) {
         this.name = name;
+    }
+
+    public String getLastUpdate() {
+        return lastUpdate;
     }
 
     public void setLastUpdate(String lastUpdate) {
@@ -37,21 +42,5 @@ public class AnimationInfo implements Message {
 
     public void setFrameRate(int frameRate) {
         this.frameRate = frameRate;
-    }
-
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getRepeat() {
-        return repeat;
-    }
-
-    public void setRepeat(int repeat) {
-        this.repeat = repeat;
     }
 }

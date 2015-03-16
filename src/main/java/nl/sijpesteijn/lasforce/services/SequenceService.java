@@ -17,7 +17,9 @@ public class SequenceService implements ISequenceService {
 
     @Override
     public List<SequenceInfo> getSequences() {
-        SequenceInfo sequenceInfo = new SequenceInfo("start", animationService.getAnimations());
+        SequenceInfo sequenceInfo = new SequenceInfo();
+        sequenceInfo.setName("start");
+        sequenceInfo.setAnimations(animationService.getAnimations());
         animationService.getAnimations(sequenceInfo);
         return Arrays.asList(sequenceInfo);
     }

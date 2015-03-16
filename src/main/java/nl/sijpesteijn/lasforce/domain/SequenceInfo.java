@@ -13,16 +13,19 @@ public class SequenceInfo {
     private String name;
     private List<AnimationInfo> animations;
 
-    public SequenceInfo(String name, List<AnimationInfo> animations) {
-        this.name = name;
-        this.animations = animations;
-    }
-
     public String getName() {
         return name;
     }
 
     public List<AnimationInfo> getAnimations() {
         return animations;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setAnimations(List<AnimationInfo> animations) {
+        this.animations = animations;
     }
 }
