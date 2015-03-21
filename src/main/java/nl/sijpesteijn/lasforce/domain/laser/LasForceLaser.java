@@ -7,7 +7,9 @@ import nl.sijpesteijn.lasforce.domain.laser.commands.Command;
 import nl.sijpesteijn.lasforce.domain.laser.commands.PlayAnimation;
 import nl.sijpesteijn.lasforce.domain.laser.commands.PlaySequence;
 import nl.sijpesteijn.lasforce.domain.laser.commands.SendAnimationData;
+import nl.sijpesteijn.lasforce.domain.laser.responses.ListResponse;
 import nl.sijpesteijn.lasforce.domain.laser.responses.OkResponse;
+import nl.sijpesteijn.lasforce.domain.laser.responses.SendAnimationDataResponse;
 import nl.sijpesteijn.lasforce.domain.laser.responses.SocketResponse;
 import nl.sijpesteijn.lasforce.exceptions.LaserException;
 import nl.sijpesteijn.lasforce.services.AnimationInfo;
@@ -23,6 +25,7 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.URISyntaxException;
+import java.util.Date;
 
 /**
  * @author Gijs Sijpesteijn
@@ -33,36 +36,87 @@ public class LasForceLaser implements Laser {
     private Socket client;
     private DataInputStream in;
     private PrintStream printStream;
+    private Configuration configuration;
 
     @Inject
     public LasForceLaser(Configuration configuration) throws IOException {
-        client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
-        LOGGER.debug("Connected to server: " + client.getRemoteSocketAddress());
-        printStream = new PrintStream(client.getOutputStream());
-        in = new DataInputStream(client.getInputStream());
+        this.configuration = configuration;
     }
 
     @Override
     public void playAnimation(AnimationInfo animationInfo) throws LaserException {
         try {
-            PlayAnimation paCommand = new PlayAnimation(animationInfo);
-            SocketResponse socketResponse = sendMessage(paCommand);
-            while(!(socketResponse instanceof OkResponse)) {
+            client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
+            LOGGER.debug("Connected to server: " + client.getRemoteSocketAddress());
+            printStream = new PrintStream(client.getOutputStream());
+            in = new DataInputStream(client.getInputStream());
 
-                // If animation_data then send the ilda data
-                IldaReader reader = new IldaReader();
-                IldaFormat ilda = null;
-                ilda = reader.read(new File("./src/main/resources/examples/astroid.ild"));
-                SendAnimationData sad = new SendAnimationData(new AnimationData(ilda));
-                socketResponse = sendMessage(sad);
+            PlayAnimation paCommand = new PlayAnimation(animationInfo);
+            sendMessage(printStream, paCommand);
+            SocketResponse socketResponse = getResponseCommand(in);
+            while(!(socketResponse instanceof OkResponse)) {
+                handleResponse((SendAnimationDataResponse) socketResponse);
+                socketResponse = getResponseCommand(in);
             }
+            in.close();
+            printStream.close();
+            client.close();
         } catch (Exception e) {
             LOGGER.error(e.getMessage());
             e.printStackTrace();
         }
     }
 
-    private SocketResponse sendMessage(Command command) throws IOException, URISyntaxException {
+    @Override
+    public void playSequence(SequenceInfo sequenceInfo) throws LaserException {
+        try {
+            client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
+            LOGGER.debug("Connected to server: " + client.getRemoteSocketAddress());
+            printStream = new PrintStream(client.getOutputStream());
+            in = new DataInputStream(client.getInputStream());
+
+            PlaySequence playSequence = new PlaySequence(sequenceInfo);
+            sendMessage(printStream, playSequence);
+            SocketResponse socketResponse = getResponseCommand(in);
+            while(!(socketResponse instanceof OkResponse)) {
+                handleResponse( socketResponse);
+                socketResponse = getResponseCommand(in);
+            }
+
+            in.close();
+            printStream.close();
+            client.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void handleResponse(SocketResponse socketResponse) throws IOException, URISyntaxException {
+        if (socketResponse instanceof SendAnimationDataResponse) {
+            // If animation_data then send the ilda data
+            SendAnimationDataResponse sadr = (SendAnimationDataResponse) socketResponse;
+            IldaReader reader = new IldaReader();
+            IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + sadr.getName() + ".ild"));
+            ilda.setId(1);
+            ilda.setLastUpdate(new Date());
+            SendAnimationData sad = new SendAnimationData(sadr, new AnimationData(ilda));
+            sendMessage(printStream, sad);
+        }
+        if (socketResponse instanceof ListResponse) {
+            ListResponse listResponse = (ListResponse) socketResponse;
+            for(SocketResponse sr : listResponse.getElements()) {
+                SendAnimationDataResponse sadr = (SendAnimationDataResponse) sr;
+                IldaReader reader = new IldaReader();
+                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + sadr.getName() + ".ild"));
+                SendAnimationData sad = new SendAnimationData(sadr, new AnimationData(ilda));
+                sendMessage(printStream, sad);
+            }
+        }
+    }
+
+    private void sendMessage(PrintStream printStream, Command command) throws IOException, URISyntaxException {
         String commandJson = objectMapper.writeValueAsString(command);
         if (commandJson.length() > 200) {
             System.out.println(commandJson.substring(0,200) + "....");
@@ -74,7 +128,6 @@ public class LasForceLaser implements Laser {
         printStream.print(commandJson);
         printStream.flush();
         System.out.println("Sending msg took: " + (System.currentTimeMillis() - start) + " milliseconds");
-        return getResponseCommand(in);
     }
 
     private SocketResponse getResponseCommand(DataInputStream in) throws IOException, URISyntaxException {
@@ -83,26 +136,7 @@ public class LasForceLaser implements Laser {
             break;
         }
         System.out.println("Response command: " + socketResponseJson);
-        return getSocketResponse(socketResponseJson);
-    }
-
-    private SocketResponse getSocketResponse(String commandJson) throws IOException, URISyntaxException {
-
-        return objectMapper.readValue(commandJson, SocketResponse.class);
-    }
-
-
-    @Override
-    public void playSequence(SequenceInfo sequenceInfo) throws LaserException {
-        PlaySequence playSequence = new PlaySequence(sequenceInfo);
-        try {
-            sendMessage(playSequence);
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-        }
+        return objectMapper.readValue(socketResponseJson, SocketResponse.class);
     }
 
     private String getLength(String json) {

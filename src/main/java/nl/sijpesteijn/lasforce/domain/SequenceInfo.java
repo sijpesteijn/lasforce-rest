@@ -28,4 +28,8 @@ public class SequenceInfo {
     public void setAnimations(List<AnimationInfo> animations) {
         this.animations = animations;
     }
+
+    public int getAnimations_length() {
+        return animations.size();
+    }
 }

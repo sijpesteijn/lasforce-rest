@@ -32,16 +32,34 @@ public class LasForceLaserTest {
     }
 
     @Test
-    public void testPlaySequence() throws Exception {
+    public void testPlayAnimations() throws Exception {
         AnimationInfo animation = new AnimationInfo();
         animation.setId(1);
         animation.setName("PeaceDove8");
         animation.setLastUpdate("2015-03-13T13:54:33.567Z");
         animation.setFrameRate(24);
+        for(int i = 0;i<105;i++) {
+            animation.setId(i);
+            laser.playAnimation(animation);
+        }
+    }
+
+    @Test
+    public void testPlaySequence() throws Exception {
+        AnimationInfo animation1 = new AnimationInfo();
+        animation1.setId(1);
+        animation1.setName("PeaceDove8");
+        animation1.setLastUpdate("2015-03-13T13:54:33.567Z");
+        animation1.setFrameRate(24);
+        AnimationInfo animation2 = new AnimationInfo();
+        animation2.setId(2);
+        animation2.setName("bang1");
+        animation2.setLastUpdate("2015-03-13T13:54:33.567Z");
+        animation2.setFrameRate(24);
 
         SequenceInfo sequence = new SequenceInfo();
         sequence.setName("kerst");
-        sequence.setAnimations(Arrays.asList(animation));
+        sequence.setAnimations(Arrays.asList(animation1, animation2));
         laser.playSequence(sequence);
     }
 }
