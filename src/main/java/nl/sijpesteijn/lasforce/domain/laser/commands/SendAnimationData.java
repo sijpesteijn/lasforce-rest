@@ -1,7 +1,7 @@
 package nl.sijpesteijn.lasforce.domain.laser.commands;
 
+
 import nl.sijpesteijn.lasforce.domain.laser.AnimationData;
-import nl.sijpesteijn.lasforce.domain.laser.responses.SendAnimationDataResponse;
 
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -10,20 +10,14 @@ import javax.xml.bind.annotation.XmlRootElement;
  */
 @XmlRootElement
 public class SendAnimationData extends Command {
-    private SendAnimationDataResponse animationMetaData;
-    private AnimationData animationData;
+    private AnimationData animation;
 
-    public SendAnimationData(SendAnimationDataResponse animationMetaData, AnimationData animationData) {
+    public SendAnimationData(AnimationData animation) {
         super("animation_data");
-        this.animationMetaData = animationMetaData;
-        this.animationData = animationData;
+        this.animation = animation;
     }
 
-    public AnimationData getAnimationData() {
-        return animationData;
-    }
-
-    public SendAnimationDataResponse getAnimationMetaData() {
-        return animationMetaData;
+    public AnimationData getAnimation() {
+        return animation;
     }
 }

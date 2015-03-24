@@ -13,7 +13,7 @@ public class AnimationInfo implements Message {
     private String name;
     private String lastUpdate;
     private int frameRate;
-    private int repeat;
+    private int loopCount;
 
     public String getLastUpdate() {
         return lastUpdate;
@@ -47,11 +47,11 @@ public class AnimationInfo implements Message {
         this.id = id;
     }
 
-    public int getRepeat() {
-        return repeat;
+    public int getLoopCount() {
+        return loopCount;
     }
 
-    public void setRepeat(int repeat) {
-        this.repeat = repeat;
+    public void setLoopCount(int loopCount) {
+        this.loopCount = loopCount;
     }
 }

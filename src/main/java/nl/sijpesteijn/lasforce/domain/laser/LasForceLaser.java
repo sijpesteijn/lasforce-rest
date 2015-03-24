@@ -9,7 +9,7 @@ import nl.sijpesteijn.lasforce.domain.laser.commands.PlaySequence;
 import nl.sijpesteijn.lasforce.domain.laser.commands.SendAnimationData;
 import nl.sijpesteijn.lasforce.domain.laser.responses.ListResponse;
 import nl.sijpesteijn.lasforce.domain.laser.responses.OkResponse;
-import nl.sijpesteijn.lasforce.domain.laser.responses.SendAnimationDataResponse;
+import nl.sijpesteijn.lasforce.domain.laser.responses.AnimationMetaData;
 import nl.sijpesteijn.lasforce.domain.laser.responses.SocketResponse;
 import nl.sijpesteijn.lasforce.exceptions.LaserException;
 import nl.sijpesteijn.lasforce.services.AnimationInfo;
@@ -55,7 +55,7 @@ public class LasForceLaser implements Laser {
             sendMessage(printStream, paCommand);
             SocketResponse socketResponse = getResponseCommand(in);
             while(!(socketResponse instanceof OkResponse)) {
-                handleResponse((SendAnimationDataResponse) socketResponse);
+                handleResponse((AnimationMetaData) socketResponse);
                 socketResponse = getResponseCommand(in);
             }
             in.close();
@@ -94,23 +94,23 @@ public class LasForceLaser implements Laser {
     }
 
     private void handleResponse(SocketResponse socketResponse) throws IOException, URISyntaxException {
-        if (socketResponse instanceof SendAnimationDataResponse) {
+        if (socketResponse instanceof AnimationMetaData) {
             // If animation_data then send the ilda data
-            SendAnimationDataResponse sadr = (SendAnimationDataResponse) socketResponse;
+            AnimationMetaData animationMetaData = (AnimationMetaData) socketResponse;
             IldaReader reader = new IldaReader();
-            IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + sadr.getName() + ".ild"));
+            IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animationMetaData.getName() + ".ild"));
             ilda.setId(1);
             ilda.setLastUpdate(new Date());
-            SendAnimationData sad = new SendAnimationData(sadr, new AnimationData(ilda));
+            SendAnimationData sad = new SendAnimationData(new AnimationData(animationMetaData, ilda));
             sendMessage(printStream, sad);
         }
         if (socketResponse instanceof ListResponse) {
             ListResponse listResponse = (ListResponse) socketResponse;
             for(SocketResponse sr : listResponse.getElements()) {
-                SendAnimationDataResponse sadr = (SendAnimationDataResponse) sr;
+                AnimationMetaData animationMetaData = (AnimationMetaData) sr;
                 IldaReader reader = new IldaReader();
-                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + sadr.getName() + ".ild"));
-                SendAnimationData sad = new SendAnimationData(sadr, new AnimationData(ilda));
+                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animationMetaData.getName() + ".ild"));
+                SendAnimationData sad = new SendAnimationData(new AnimationData(animationMetaData, ilda));
                 sendMessage(printStream, sad);
             }
         }

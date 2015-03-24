@@ -27,7 +27,8 @@ public class LasForceLaserTest {
         animation.setId(1);
         animation.setName("PeaceDove8");
         animation.setLastUpdate("2015-03-13T13:54:33.567Z");
-        animation.setFrameRate(24);
+        animation.setFrameRate(25);
+        animation.setLoopCount(5);
         laser.playAnimation(animation);
     }
 
@@ -38,9 +39,10 @@ public class LasForceLaserTest {
         animation.setName("PeaceDove8");
         animation.setLastUpdate("2015-03-13T13:54:33.567Z");
         animation.setFrameRate(24);
-        for(int i = 0;i<105;i++) {
+        for(int i = 0;i<15;i++) {
             animation.setId(i);
             laser.playAnimation(animation);
+            Thread.sleep(100);
         }
     }
 
@@ -51,11 +53,13 @@ public class LasForceLaserTest {
         animation1.setName("PeaceDove8");
         animation1.setLastUpdate("2015-03-13T13:54:33.567Z");
         animation1.setFrameRate(24);
+        animation1.setLoopCount(6);
         AnimationInfo animation2 = new AnimationInfo();
         animation2.setId(2);
         animation2.setName("bang1");
         animation2.setLastUpdate("2015-03-13T13:54:33.567Z");
         animation2.setFrameRate(24);
+        animation2.setLoopCount(2);
 
         SequenceInfo sequence = new SequenceInfo();
         sequence.setName("kerst");

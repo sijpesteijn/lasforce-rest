@@ -1,0 +1,13 @@
+{
+  "command": "animation_data",
+  "animationMetaData": {
+    "response": "animation_data",
+    "id": 1,
+    "name": "PeaceDove8",
+    "lastUpdate": "2015-03-13T13:54:33.567Z",
+    "frameRate": 0
+  },
+  "animationData": {
+    "ilda": {
+      "id": 1,
+      "lastUpda....

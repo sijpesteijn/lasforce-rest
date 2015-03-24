@@ -3,11 +3,12 @@ package nl.sijpesteijn.lasforce.domain.laser.responses;
 /**
  * @author Gijs Sijpesteijn
  */
-public class SendAnimationDataResponse implements SocketResponse {
+public class AnimationMetaData implements SocketResponse {
     private int id;
     private String name;
     private String lastUpdate;
     private int frameRate;
+    private int loopCount;
 
     public int getId() {
         return id;
@@ -39,5 +40,13 @@ public class SendAnimationDataResponse implements SocketResponse {
 
     public void setFrameRate(int frameRate) {
         this.frameRate = frameRate;
+    }
+
+    public int getLoopCount() {
+        return loopCount;
+    }
+
+    public void setLoopCount(int loopCount) {
+        this.loopCount = loopCount;
     }
 }
