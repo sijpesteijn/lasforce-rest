@@ -27,7 +27,7 @@ public class LasForceLaserTest {
         animation.setId(1);
         animation.setName("PeaceDove8");
         animation.setLastUpdate("2015-03-13T13:54:33.567Z");
-        animation.setFrameRate(25);
+        animation.setFrameRate(1);
         animation.setLoopCount(5);
         laser.playAnimation(animation);
     }
@@ -42,7 +42,7 @@ public class LasForceLaserTest {
         for(int i = 0;i<15;i++) {
             animation.setId(i);
             laser.playAnimation(animation);
-            Thread.sleep(100);
+            Thread.sleep(1000);
         }
     }
 

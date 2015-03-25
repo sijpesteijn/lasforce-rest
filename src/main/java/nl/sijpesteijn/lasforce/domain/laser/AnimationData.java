@@ -1,16 +1,16 @@
 package nl.sijpesteijn.lasforce.domain.laser;
 
 import nl.sijpesteijn.ilda.IldaFormat;
-import nl.sijpesteijn.lasforce.domain.laser.responses.AnimationMetaData;
+import nl.sijpesteijn.lasforce.services.AnimationInfo;
 
 /**
  * @author Gijs Sijpesteijn
  */
 public class AnimationData {
-    private AnimationMetaData animationMetaData;
+    private AnimationInfo animationMetaData;
     private IldaFormat ilda;
 
-    public AnimationData(AnimationMetaData animationMetaData, IldaFormat ilda) {
+    public AnimationData(AnimationInfo animationMetaData, IldaFormat ilda) {
         this.animationMetaData = animationMetaData;
         this.ilda = ilda;
     }
@@ -19,7 +19,7 @@ public class AnimationData {
         return ilda;
     }
 
-    public AnimationMetaData getAnimationMetaData() {
+    public AnimationInfo getAnimationMetaData() {
         return animationMetaData;
     }
 }

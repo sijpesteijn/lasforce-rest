@@ -11,8 +11,8 @@ import org.codehaus.jackson.annotate.JsonTypeInfo;
         include = JsonTypeInfo.As.PROPERTY,
         property = "response")
 @JsonSubTypes({
-        @JsonSubTypes.Type(value = AnimationMetaData.class, name = "animation_data"),
-        @JsonSubTypes.Type(value = ListResponse.class, name = "list"),
-        @JsonSubTypes.Type(value = OkResponse.class, name = "ok") })
+        @JsonSubTypes.Type(value = AnimationRequestResponse.class, name = "animation_request"),
+        @JsonSubTypes.Type(value = OkResponse.class, name = "ok"),
+        @JsonSubTypes.Type(value = ErrorResponse.class, name = "error")})
 public interface SocketResponse {
 }

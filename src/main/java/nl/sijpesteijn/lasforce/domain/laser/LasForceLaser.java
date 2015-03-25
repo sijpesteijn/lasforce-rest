@@ -7,9 +7,9 @@ import nl.sijpesteijn.lasforce.domain.laser.commands.Command;
 import nl.sijpesteijn.lasforce.domain.laser.commands.PlayAnimation;
 import nl.sijpesteijn.lasforce.domain.laser.commands.PlaySequence;
 import nl.sijpesteijn.lasforce.domain.laser.commands.SendAnimationData;
-import nl.sijpesteijn.lasforce.domain.laser.responses.ListResponse;
+import nl.sijpesteijn.lasforce.domain.laser.responses.AnimationRequestResponse;
+import nl.sijpesteijn.lasforce.domain.laser.responses.ErrorResponse;
 import nl.sijpesteijn.lasforce.domain.laser.responses.OkResponse;
-import nl.sijpesteijn.lasforce.domain.laser.responses.AnimationMetaData;
 import nl.sijpesteijn.lasforce.domain.laser.responses.SocketResponse;
 import nl.sijpesteijn.lasforce.exceptions.LaserException;
 import nl.sijpesteijn.lasforce.services.AnimationInfo;
@@ -45,44 +45,22 @@ public class LasForceLaser implements Laser {
 
     @Override
     public void playAnimation(AnimationInfo animationInfo) throws LaserException {
-        try {
-            client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
-            LOGGER.debug("Connected to server: " + client.getRemoteSocketAddress());
-            printStream = new PrintStream(client.getOutputStream());
-            in = new DataInputStream(client.getInputStream());
-
-            PlayAnimation paCommand = new PlayAnimation(animationInfo);
-            sendMessage(printStream, paCommand);
-            SocketResponse socketResponse = getResponseCommand(in);
-            while(!(socketResponse instanceof OkResponse)) {
-                handleResponse((AnimationMetaData) socketResponse);
-                socketResponse = getResponseCommand(in);
-            }
-            in.close();
-            printStream.close();
-            client.close();
-        } catch (Exception e) {
-            LOGGER.error(e.getMessage());
-            e.printStackTrace();
-        }
+        play(new PlayAnimation(animationInfo));
     }
 
     @Override
     public void playSequence(SequenceInfo sequenceInfo) throws LaserException {
+        play(new PlaySequence(sequenceInfo));
+    }
+
+    private void play(Command command) throws LaserException {
         try {
             client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
             LOGGER.debug("Connected to server: " + client.getRemoteSocketAddress());
             printStream = new PrintStream(client.getOutputStream());
             in = new DataInputStream(client.getInputStream());
-
-            PlaySequence playSequence = new PlaySequence(sequenceInfo);
-            sendMessage(printStream, playSequence);
-            SocketResponse socketResponse = getResponseCommand(in);
-            while(!(socketResponse instanceof OkResponse)) {
-                handleResponse( socketResponse);
-                socketResponse = getResponseCommand(in);
-            }
-
+            sendMessage(printStream, command);
+            handleResponse(getResponseCommand(in));
             in.close();
             printStream.close();
             client.close();
@@ -91,28 +69,30 @@ public class LasForceLaser implements Laser {
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
-    }
 
+    }
     private void handleResponse(SocketResponse socketResponse) throws IOException, URISyntaxException {
-        if (socketResponse instanceof AnimationMetaData) {
-            // If animation_data then send the ilda data
-            AnimationMetaData animationMetaData = (AnimationMetaData) socketResponse;
-            IldaReader reader = new IldaReader();
-            IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animationMetaData.getName() + ".ild"));
-            ilda.setId(1);
-            ilda.setLastUpdate(new Date());
-            SendAnimationData sad = new SendAnimationData(new AnimationData(animationMetaData, ilda));
-            sendMessage(printStream, sad);
-        }
-        if (socketResponse instanceof ListResponse) {
-            ListResponse listResponse = (ListResponse) socketResponse;
-            for(SocketResponse sr : listResponse.getElements()) {
-                AnimationMetaData animationMetaData = (AnimationMetaData) sr;
+        if(socketResponse instanceof AnimationRequestResponse) {
+           AnimationRequestResponse arr = (AnimationRequestResponse) socketResponse;
+            for(AnimationInfo animationInfo : arr.getAnimations()) {
                 IldaReader reader = new IldaReader();
-                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animationMetaData.getName() + ".ild"));
-                SendAnimationData sad = new SendAnimationData(new AnimationData(animationMetaData, ilda));
+                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animationInfo.getName() + ".ild"));
+                ilda.setId(1);
+                ilda.setLastUpdate(new Date());
+                SendAnimationData sad = new SendAnimationData(new AnimationData(animationInfo, ilda));
                 sendMessage(printStream, sad);
+                SocketResponse response = getResponseCommand(in);
+                while(!(response instanceof OkResponse)) {
+                    handleResponse( response);
+                    response = getResponseCommand(in);
+                }
             }
+        }
+        if (socketResponse instanceof OkResponse) {
+            LOGGER.debug("Ok response received.");
+        }
+        if (socketResponse instanceof ErrorResponse) {
+            LOGGER.debug("Error response received %s",socketResponse.toString());
         }
     }
 
