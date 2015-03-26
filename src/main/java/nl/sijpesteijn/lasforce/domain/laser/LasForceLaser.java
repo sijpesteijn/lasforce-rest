@@ -53,6 +53,11 @@ public class LasForceLaser implements Laser {
         play(new PlaySequence(sequenceInfo));
     }
 
+    @Override
+    public void sendCommand(Command command) throws LaserException{
+        play(command);
+    }
+
     private void play(Command command) throws LaserException {
         try {
             client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
@@ -72,6 +77,9 @@ public class LasForceLaser implements Laser {
 
     }
     private void handleResponse(SocketResponse socketResponse) throws IOException, URISyntaxException {
+        if (socketResponse == null) {
+            return;
+        }
         if(socketResponse instanceof AnimationRequestResponse) {
            AnimationRequestResponse arr = (AnimationRequestResponse) socketResponse;
             for(AnimationInfo animationInfo : arr.getAnimations()) {
@@ -116,7 +124,7 @@ public class LasForceLaser implements Laser {
             break;
         }
         System.out.println("Response command: " + socketResponseJson);
-        return objectMapper.readValue(socketResponseJson, SocketResponse.class);
+        return socketResponseJson != null ? objectMapper.readValue(socketResponseJson, SocketResponse.class) : null;
     }
 
     private String getLength(String json) {

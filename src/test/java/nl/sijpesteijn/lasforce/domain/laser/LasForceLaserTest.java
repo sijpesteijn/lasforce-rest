@@ -1,6 +1,7 @@
 package nl.sijpesteijn.lasforce.domain.laser;
 
 import nl.sijpesteijn.lasforce.domain.SequenceInfo;
+import nl.sijpesteijn.lasforce.domain.laser.commands.Command;
 import nl.sijpesteijn.lasforce.services.AnimationInfo;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -19,6 +20,11 @@ public class LasForceLaserTest {
         config.addProperty("bb.hostName","127.0.0.1");
         config.addProperty("bb.port","5555");
         laser = new LasForceLaser(config);
+    }
+
+    @Test
+    public void testSendCommand() throws Exception {
+        laser.sendCommand(new Command("stop_service"));
     }
 
     @Test
