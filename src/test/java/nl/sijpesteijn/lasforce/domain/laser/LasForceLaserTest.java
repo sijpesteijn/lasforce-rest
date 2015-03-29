@@ -28,14 +28,18 @@ public class LasForceLaserTest {
     }
 
     @Test
-    public void testPlayAnimation() throws Exception {
+    public void testSimpleSequence() throws Exception {
         AnimationInfo animation = new AnimationInfo();
         animation.setId(1);
         animation.setName("PeaceDove8");
         animation.setLastUpdate("2015-03-13T13:54:33.567Z");
         animation.setFrameRate(1);
         animation.setLoopCount(5);
-        laser.playAnimation(animation);
+        SequenceInfo sequence = new SequenceInfo();
+        sequence.setName("simple sequence");
+        sequence.setLoopCount(2);
+        sequence.setAnimations(Arrays.asList(animation));
+        laser.playSequence(sequence);
     }
 
     @Test
@@ -55,21 +59,25 @@ public class LasForceLaserTest {
     @Test
     public void testPlaySequence() throws Exception {
         AnimationInfo animation1 = new AnimationInfo();
-        animation1.setId(1);
+        animation1.setId(5674);
         animation1.setName("PeaceDove8");
         animation1.setLastUpdate("2015-03-13T13:54:33.567Z");
         animation1.setFrameRate(24);
         animation1.setLoopCount(6);
         AnimationInfo animation2 = new AnimationInfo();
-        animation2.setId(2);
+        animation2.setId(5675);
         animation2.setName("bang1");
         animation2.setLastUpdate("2015-03-13T13:54:33.567Z");
         animation2.setFrameRate(24);
         animation2.setLoopCount(2);
 
         SequenceInfo sequence = new SequenceInfo();
-        sequence.setName("kerst");
+        sequence.setName("Sequence");
+        sequence.setLoopCount(2);
         sequence.setAnimations(Arrays.asList(animation1, animation2));
-        laser.playSequence(sequence);
+        for(int i = 0; i< 1;i++) {
+            laser.playSequence(sequence);
+//            Thread.sleep(1000);
+        }
     }
 }

@@ -43,6 +43,7 @@ public class LasForceLaser implements Laser {
         this.configuration = configuration;
     }
 
+    @Deprecated
     @Override
     public void playAnimation(AnimationInfo animationInfo) throws LaserException {
         play(new PlayAnimation(animationInfo));
@@ -65,7 +66,10 @@ public class LasForceLaser implements Laser {
             printStream = new PrintStream(client.getOutputStream());
             in = new DataInputStream(client.getInputStream());
             sendMessage(printStream, command);
-            handleResponse(getResponseCommand(in));
+            SocketResponse socketResponse = getResponseCommand(in);
+            if(socketResponse != null) {
+                handleResponse(socketResponse);
+            }
             in.close();
             printStream.close();
             client.close();
@@ -77,20 +81,17 @@ public class LasForceLaser implements Laser {
 
     }
     private void handleResponse(SocketResponse socketResponse) throws IOException, URISyntaxException {
-        if (socketResponse == null) {
-            return;
-        }
         if(socketResponse instanceof AnimationRequestResponse) {
            AnimationRequestResponse arr = (AnimationRequestResponse) socketResponse;
             for(AnimationInfo animationInfo : arr.getAnimations()) {
                 IldaReader reader = new IldaReader();
                 IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animationInfo.getName() + ".ild"));
-                ilda.setId(1);
+                ilda.setId(animationInfo.getId());
                 ilda.setLastUpdate(new Date());
                 SendAnimationData sad = new SendAnimationData(new AnimationData(animationInfo, ilda));
                 sendMessage(printStream, sad);
                 SocketResponse response = getResponseCommand(in);
-                while(!(response instanceof OkResponse)) {
+                while(response != null && !(response instanceof OkResponse)) {
                     handleResponse( response);
                     response = getResponseCommand(in);
                 }

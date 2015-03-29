@@ -11,6 +11,7 @@ import java.util.List;
 @XmlRootElement
 public class SequenceInfo {
     private String name;
+    private int loopCount;
     private List<AnimationInfo> animations;
 
     public String getName() {
@@ -31,5 +32,13 @@ public class SequenceInfo {
 
     public int getAnimations_length() {
         return animations.size();
+    }
+
+    public int getLoopCount() {
+        return loopCount;
+    }
+
+    public void setLoopCount(int loopCount) {
+        this.loopCount = loopCount;
     }
 }
