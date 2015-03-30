@@ -2,6 +2,7 @@ package nl.sijpesteijn.lasforce.domain.laser;
 
 import nl.sijpesteijn.lasforce.domain.SequenceInfo;
 import nl.sijpesteijn.lasforce.domain.laser.commands.Command;
+import nl.sijpesteijn.lasforce.domain.laser.commands.InstructionCommand;
 import nl.sijpesteijn.lasforce.services.AnimationInfo;
 import org.apache.commons.configuration.BaseConfiguration;
 import org.apache.commons.configuration.Configuration;
@@ -28,32 +29,23 @@ public class LasForceLaserTest {
     }
 
     @Test
+    public void testSendInstruction() throws Exception {
+        laser.sendCommand(new InstructionCommand("listQueue", ""));
+    }
+
+    @Test
     public void testSimpleSequence() throws Exception {
         AnimationInfo animation = new AnimationInfo();
         animation.setId(1);
         animation.setName("PeaceDove8");
         animation.setLastUpdate("2015-03-13T13:54:33.567Z");
         animation.setFrameRate(1);
-        animation.setLoopCount(5);
+        animation.setLoopCount(1);
         SequenceInfo sequence = new SequenceInfo();
         sequence.setName("simple sequence");
-        sequence.setLoopCount(2);
+        sequence.setLoopCount(1);
         sequence.setAnimations(Arrays.asList(animation));
         laser.playSequence(sequence);
-    }
-
-    @Test
-    public void testPlayAnimations() throws Exception {
-        AnimationInfo animation = new AnimationInfo();
-        animation.setId(1);
-        animation.setName("PeaceDove8");
-        animation.setLastUpdate("2015-03-13T13:54:33.567Z");
-        animation.setFrameRate(24);
-        for(int i = 0;i<15;i++) {
-            animation.setId(i);
-            laser.playAnimation(animation);
-            Thread.sleep(1000);
-        }
     }
 
     @Test
