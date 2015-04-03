@@ -1,6 +1,6 @@
 package nl.sijpesteijn.lasforce.domain;
 
-import nl.sijpesteijn.lasforce.services.AnimationInfo;
+import nl.sijpesteijn.lasforce.services.AnimationMetaData;
 
 import javax.xml.bind.annotation.XmlRootElement;
 import java.util.List;
@@ -12,13 +12,13 @@ import java.util.List;
 public class SequenceInfo {
     private String name;
     private int loopCount;
-    private List<AnimationInfo> animations;
+    private List<AnimationMetaData> animations;
 
     public String getName() {
         return name;
     }
 
-    public List<AnimationInfo> getAnimations() {
+    public List<AnimationMetaData> getAnimations() {
         return animations;
     }
 
@@ -26,7 +26,7 @@ public class SequenceInfo {
         this.name = name;
     }
 
-    public void setAnimations(List<AnimationInfo> animations) {
+    public void setAnimations(List<AnimationMetaData> animations) {
         this.animations = animations;
     }
 

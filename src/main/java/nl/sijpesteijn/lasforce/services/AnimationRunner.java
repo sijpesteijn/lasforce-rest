@@ -1,7 +1,6 @@
 package nl.sijpesteijn.lasforce.services;
 
 import nl.sijpesteijn.lasforce.domain.laser.Laser;
-import nl.sijpesteijn.lasforce.exceptions.LaserException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,12 +17,12 @@ public class AnimationRunner implements IAnimationRunner {
     private Laser laser;
 
     @Override
-    public void playAnimation(AnimationInfo animationInfo) {
-        LOG.debug("Starting animation:" + animationInfo.getName());
-        try {
-            laser.playAnimation(animationInfo);
-        } catch (LaserException e) {
-            e.printStackTrace();
-        }
+    public void playAnimation(AnimationMetaData animationMetaData) {
+        LOG.debug("Starting animation:" + animationMetaData.getName());
+//        try {
+////            laser.playAnimation(animationInfo);
+//        } catch (LaserException e) {
+//            e.printStackTrace();
+//        }
     }
 }

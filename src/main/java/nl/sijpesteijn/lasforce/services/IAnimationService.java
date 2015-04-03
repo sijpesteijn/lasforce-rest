@@ -16,9 +16,9 @@ public interface IAnimationService {
 
     Animation load(String name) throws IOException, URISyntaxException;
 
-    List<AnimationInfo> getAnimations();
+    List<AnimationMetaData> getAnimations();
 
     void save(Animation animation) throws LaserException;
 
-    List<AnimationInfo> getAnimations(SequenceInfo sequenceInfo);
+    List<AnimationMetaData> getAnimations(SequenceInfo sequenceInfo);
 }

@@ -3,16 +3,15 @@ package nl.sijpesteijn.lasforce.domain.laser;
 import nl.sijpesteijn.ilda.IldaFormat;
 import nl.sijpesteijn.ilda.IldaReader;
 import nl.sijpesteijn.lasforce.domain.SequenceInfo;
-import nl.sijpesteijn.lasforce.domain.laser.commands.Command;
-import nl.sijpesteijn.lasforce.domain.laser.commands.PlayAnimation;
 import nl.sijpesteijn.lasforce.domain.laser.commands.PlaySequence;
-import nl.sijpesteijn.lasforce.domain.laser.commands.SendAnimationData;
-import nl.sijpesteijn.lasforce.domain.laser.responses.AnimationRequestResponse;
-import nl.sijpesteijn.lasforce.domain.laser.responses.ErrorResponse;
+import nl.sijpesteijn.lasforce.domain.laser.commands.Request;
+import nl.sijpesteijn.lasforce.domain.laser.commands.StoreAnimationDataRequest;
 import nl.sijpesteijn.lasforce.domain.laser.responses.OkResponse;
+import nl.sijpesteijn.lasforce.domain.laser.responses.SendAnimationDataResponse;
 import nl.sijpesteijn.lasforce.domain.laser.responses.SocketResponse;
+import nl.sijpesteijn.lasforce.domain.laser.responses.response_handlers.ResponseHandlerFactory;
 import nl.sijpesteijn.lasforce.exceptions.LaserException;
-import nl.sijpesteijn.lasforce.services.AnimationInfo;
+import nl.sijpesteijn.lasforce.services.AnimationMetaData;
 import org.apache.commons.configuration.Configuration;
 import org.codehaus.jackson.map.ObjectMapper;
 import org.slf4j.Logger;
@@ -25,7 +24,6 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Socket;
 import java.net.URISyntaxException;
-import java.util.Date;
 
 /**
  * @author Gijs Sijpesteijn
@@ -33,84 +31,98 @@ import java.util.Date;
 public class LasForceLaser implements Laser {
     private static final Logger LOGGER = LoggerFactory.getLogger(LasForceLaser.class);
     private ObjectMapper objectMapper = new ObjectMapper();
-    private Socket client;
-    private DataInputStream in;
-    private PrintStream printStream;
     private Configuration configuration;
+    private ResponseHandlerFactory factory = ResponseHandlerFactory.getInstance();
 
     @Inject
     public LasForceLaser(Configuration configuration) throws IOException {
         this.configuration = configuration;
     }
 
-    @Deprecated
     @Override
-    public void playAnimation(AnimationInfo animationInfo) throws LaserException {
-        play(new PlayAnimation(animationInfo));
+    public SocketResponse playSequence(SequenceInfo sequenceInfo) throws LaserException {
+        return play(new PlaySequence(sequenceInfo));
     }
 
     @Override
-    public void playSequence(SequenceInfo sequenceInfo) throws LaserException {
-        play(new PlaySequence(sequenceInfo));
+    public SocketResponse sendCommand(Request request) throws LaserException{
+       return play(request);
     }
 
-    @Override
-    public void sendCommand(Command command) throws LaserException{
-        play(command);
-    }
-
-    private void play(Command command) throws LaserException {
+    private SocketResponse play(Request request) throws LaserException {
+        SocketResponse socketResponse = null;
         try {
-            client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
+            Socket client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
             LOGGER.debug("Connected to server: " + client.getRemoteSocketAddress());
-            printStream = new PrintStream(client.getOutputStream());
-            in = new DataInputStream(client.getInputStream());
-            sendMessage(printStream, command);
-            SocketResponse socketResponse = getResponseCommand(in);
-            if(socketResponse != null) {
-                handleResponse(socketResponse);
+            PrintStream printStream = new PrintStream(client.getOutputStream());
+            DataInputStream in = new DataInputStream(client.getInputStream());
+
+            sendMessage(printStream, request);
+            socketResponse = getSocketResponse(in);
+            if (continueCommunication(socketResponse)) {
+                return handleResponse(printStream, in, socketResponse);
             }
             in.close();
             printStream.close();
             client.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        } catch (URISyntaxException e) {
+        } catch (Exception e) {
             e.printStackTrace();
         }
-
+        return socketResponse;
     }
-    private void handleResponse(SocketResponse socketResponse) throws IOException, URISyntaxException {
-        if(socketResponse instanceof AnimationRequestResponse) {
-           AnimationRequestResponse arr = (AnimationRequestResponse) socketResponse;
-            for(AnimationInfo animationInfo : arr.getAnimations()) {
-                IldaReader reader = new IldaReader();
-                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animationInfo.getName() + ".ild"));
-                ilda.setId(animationInfo.getId());
-                ilda.setLastUpdate(new Date());
-                SendAnimationData sad = new SendAnimationData(new AnimationData(animationInfo, ilda));
-                sendMessage(printStream, sad);
-                SocketResponse response = getResponseCommand(in);
-                while(response != null && !(response instanceof OkResponse)) {
-                    handleResponse( response);
-                    response = getResponseCommand(in);
+
+    private boolean continueCommunication(SocketResponse socketResponse) {
+        if (socketResponse instanceof OkResponse) {
+//            OkResponse okResponse = (OkResponse) socketResponse;
+            return false; //!okResponse.getOriginalRequest().equals(request.getCommand());
+        }
+        return true;
+    }
+
+    private SocketResponse handleResponse(PrintStream printStream, DataInputStream in, SocketResponse socketResponse) throws IOException, URISyntaxException {
+        if (socketResponse instanceof SendAnimationDataResponse) {
+            SendAnimationDataResponse sdr = (SendAnimationDataResponse) socketResponse;
+            IldaReader reader = new IldaReader();
+            for(AnimationMetaData animation : sdr.getAnimations()) {
+                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animation.getName() + ".ild"));
+                ilda.setId(animation.getId());
+                ilda.setLastUpdate(animation.getLastUpdate());
+                StoreAnimationDataRequest sadr = new StoreAnimationDataRequest(new AnimationData(animation, ilda));
+                sendMessage(printStream, sadr);
+                SocketResponse response = getSocketResponse(in);
+                while (continueCommunication(response)) {
+                    handleResponse(printStream, in, response);
                 }
             }
+            return socketResponse; //sadr;
         }
-        if (socketResponse instanceof OkResponse) {
-            LOGGER.debug("Ok response received.");
-        }
-        if (socketResponse instanceof ErrorResponse) {
-            LOGGER.debug("Error response received %s",socketResponse.toString());
-        }
+        return socketResponse;
     }
 
-    private void sendMessage(PrintStream printStream, Command command) throws IOException, URISyntaxException {
-        String commandJson = objectMapper.writeValueAsString(command);
+//    private Request getResponseRequest(SocketResponse socketResponse) throws IOException, URISyntaxException {
+//        if (socketResponse instanceof SendAnimationDataResponse) {
+//            SendAnimationDataResponse sdr = (SendAnimationDataResponse) socketResponse;
+//            IldaReader reader = new IldaReader();
+//            for(AnimationMetaData animation : sdr.getAnimations()) {
+//                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animation.getName() + ".ild"));
+//                ilda.setId(animation.getId());
+//                ilda.setLastUpdate(animation.getLastUpdate());
+//                StoreAnimationDataRequest sadr = new StoreAnimationDataRequest(new AnimationData(animation, ilda));
+//            }
+//            return null; //sadr;
+//        }
+//        if (socketResponse instanceof ErrorResponse) {
+//            LOGGER.debug("Error response received %s",socketResponse.toString());
+//        }
+//        throw new IllegalStateException("Cant create response request for: " + socketResponse.toString());
+//    }
+
+    private void sendMessage(PrintStream printStream, Request request) throws IOException, URISyntaxException {
+        String commandJson = objectMapper.writeValueAsString(request);
         if (commandJson.length() > 200) {
-            System.out.println(commandJson.substring(0,200) + "....");
+            System.out.println("Request: " + commandJson.substring(0,200) + "....");
         } else {
-            System.out.println(commandJson);
+            System.out.println("Request: " + commandJson);
         }
         long start = System.currentTimeMillis();
         printStream.print(getLength(commandJson));
@@ -119,12 +131,12 @@ public class LasForceLaser implements Laser {
         System.out.println("Sending msg took: " + (System.currentTimeMillis() - start) + " milliseconds");
     }
 
-    private SocketResponse getResponseCommand(DataInputStream in) throws IOException, URISyntaxException {
+    private SocketResponse getSocketResponse(DataInputStream in) throws IOException, URISyntaxException {
         String socketResponseJson;
         while ((socketResponseJson = in.readLine()) != null) {
             break;
         }
-        System.out.println("Response command: " + socketResponseJson);
+        System.out.println("Response: " + socketResponseJson);
         return socketResponseJson != null ? objectMapper.readValue(socketResponseJson, SocketResponse.class) : null;
     }
 

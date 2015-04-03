@@ -9,11 +9,11 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Gijs Sijpesteijn
  */
 @XmlRootElement
-public class SendAnimationData extends Command {
+public class StoreAnimationDataRequest extends Request {
     private AnimationData animation;
 
-    public SendAnimationData(AnimationData animation) {
-        super("animation_data");
+    public StoreAnimationDataRequest(AnimationData animation) {
+        super("store_animation_data_request");
         this.animation = animation;
     }
 

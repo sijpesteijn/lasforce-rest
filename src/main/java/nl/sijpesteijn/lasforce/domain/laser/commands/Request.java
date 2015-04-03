@@ -3,10 +3,10 @@ package nl.sijpesteijn.lasforce.domain.laser.commands;
 /**
  * @author Gijs Sijpesteijn
  */
-public class Command {
+public class Request {
     private String command;
 
-    public Command(String command) {
+    public Request(String command) {
         this.command = command;
     }
 

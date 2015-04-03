@@ -1,7 +1,7 @@
 package nl.sijpesteijn.lasforce.rest;
 
 import nl.sijpesteijn.lasforce.rest.dto.Playlist;
-import nl.sijpesteijn.lasforce.services.AnimationInfo;
+import nl.sijpesteijn.lasforce.services.AnimationMetaData;
 import nl.sijpesteijn.lasforce.services.IPlaylistService;
 
 import javax.inject.Inject;
@@ -40,8 +40,8 @@ public class PlaylistResource {
     @POST
     @Path("/{playlist}/add/{animation}")
     @Produces(MediaType.APPLICATION_JSON)
-    public Response addToPlaylist(@PathParam("playlist") Playlist playlist, @PathParam("animation")AnimationInfo animationInfo) {
-        playlistService.addToPlayList(playlist, animationInfo);
+    public Response addToPlaylist(@PathParam("playlist") Playlist playlist, @PathParam("animation")AnimationMetaData animationMetaData) {
+        playlistService.addToPlayList(playlist, animationMetaData);
         return Response.ok().build();
     }
 }

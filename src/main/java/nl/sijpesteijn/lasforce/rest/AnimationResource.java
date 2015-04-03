@@ -9,7 +9,7 @@ import nl.sijpesteijn.ilda.IldaReader;
 import nl.sijpesteijn.lasforce.domain.LaserAnimation;
 import nl.sijpesteijn.lasforce.exceptions.LaserException;
 import nl.sijpesteijn.lasforce.laser.LaserFormatConverter;
-import nl.sijpesteijn.lasforce.services.AnimationInfo;
+import nl.sijpesteijn.lasforce.services.AnimationMetaData;
 import nl.sijpesteijn.lasforce.services.IAnimationRunner;
 import nl.sijpesteijn.lasforce.services.IAnimationService;
 import org.apache.commons.io.IOUtils;
@@ -41,7 +41,7 @@ public class AnimationResource {
     @GET
     @Path("/list")
     @Produces(MediaType.APPLICATION_JSON)
-    public List<AnimationInfo> getAnimations() {
+    public List<AnimationMetaData> getAnimations() {
         return animationService.getAnimations();
     }
 
@@ -60,8 +60,8 @@ public class AnimationResource {
     @POST
     @Path("/play")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response playAnimation(AnimationInfo animationInfo) {
-        animationRunner.playAnimation(animationInfo);
+    public Response playAnimation(AnimationMetaData animationMetaData) {
+        animationRunner.playAnimation(animationMetaData);
         return Response.ok().build();
     }
 

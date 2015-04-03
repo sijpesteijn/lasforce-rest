@@ -3,11 +3,15 @@ package nl.sijpesteijn.lasforce.domain.laser.commands;
 /**
  * @author Gijs Sijpesteijn
  */
-public class InstructionCommand extends Command {
+public class InstructionRequest extends Request {
     private String key;
     private String value;
 
-    public InstructionCommand(String key, String value) {
+    public InstructionRequest(String key) {
+        this(key, "");
+    }
+
+    public InstructionRequest(String key, String value) {
         super("instruction_request");
         this.key = key;
         this.value = value;

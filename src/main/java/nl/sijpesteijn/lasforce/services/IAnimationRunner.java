@@ -5,5 +5,5 @@ package nl.sijpesteijn.lasforce.services;
  */
 public interface IAnimationRunner {
 
-    public void playAnimation(AnimationInfo animationInfo);
+    public void playAnimation(AnimationMetaData animationMetaData);
 }

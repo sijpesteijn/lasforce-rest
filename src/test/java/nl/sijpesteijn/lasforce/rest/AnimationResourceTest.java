@@ -1,7 +1,7 @@
 package nl.sijpesteijn.lasforce.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
-import nl.sijpesteijn.lasforce.services.AnimationInfo;
+import nl.sijpesteijn.lasforce.services.AnimationMetaData;
 import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
@@ -33,9 +33,9 @@ public class AnimationResourceTest {
 
     @Test
     public void testPlayAnimation() throws Exception {
-        AnimationInfo animation = new AnimationInfo();
+        AnimationMetaData animation = new AnimationMetaData();
         animation.setName("PeaceDove8");
-        animation.setLastUpdate("2015-03-13T13:54:33.567Z");
+        animation.setLastUpdate("2015-31-12T00:00:00.000Z");
         animation.setFrameRate(24);
 
         ClientResponse response = grizzly.service.path("rest")

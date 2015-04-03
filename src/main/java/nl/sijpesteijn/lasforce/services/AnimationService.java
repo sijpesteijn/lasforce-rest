@@ -40,14 +40,14 @@ public class AnimationService implements IAnimationService {
     }
 
     @Override
-    public List<AnimationInfo> getAnimations() {
+    public List<AnimationMetaData> getAnimations() {
         DB db = mongoProvider.get().getDB("lasforce");
-        List<AnimationInfo> animations = new ArrayList();
+        List<AnimationMetaData> animations = new ArrayList();
         DBCollection collection = db.getCollection("animations");
         DBCursor cursor = collection.find();
         while(cursor.hasNext()) {
             DBObject next = cursor.next();
-            AnimationInfo info = new AnimationInfo();
+            AnimationMetaData info = new AnimationMetaData();
             info.setName((String) next.get("name"));
             info.setLastUpdate((String) next.get("lastUpdate"));
             animations.add(info);
@@ -65,7 +65,7 @@ public class AnimationService implements IAnimationService {
     }
 
     @Override
-    public List<AnimationInfo> getAnimations(SequenceInfo sequenceInfo) {
+    public List<AnimationMetaData> getAnimations(SequenceInfo sequenceInfo) {
         return null;
     }
 }

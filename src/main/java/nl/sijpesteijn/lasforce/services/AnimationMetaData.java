@@ -8,7 +8,7 @@ import javax.xml.bind.annotation.XmlRootElement;
  * @author Gijs Sijpesteijn
  */
 @XmlRootElement
-public class AnimationInfo implements Message {
+public class AnimationMetaData implements Message {
     private int id;
     private String name;
     private String lastUpdate;
@@ -53,5 +53,16 @@ public class AnimationInfo implements Message {
 
     public void setLoopCount(int loopCount) {
         this.loopCount = loopCount;
+    }
+
+    @Override
+    public String toString() {
+        return "AnimationMetaData{" +
+                "frameRate=" + frameRate +
+                ", id=" + id +
+                ", name='" + name + '\'' +
+                ", lastUpdate='" + lastUpdate + '\'' +
+                ", loopCount=" + loopCount +
+                '}';
     }
 }

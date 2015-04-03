@@ -41,7 +41,7 @@ public class PlaylistService implements IPlaylistService {
     }
 
     @Override
-    public void addToPlayList(Playlist playlist, AnimationInfo animationInfo) {
+    public void addToPlayList(Playlist playlist, AnimationMetaData animationMetaData) {
 
     }
 }

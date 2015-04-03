@@ -12,5 +12,5 @@ public interface IPlaylistService {
 
     void play(Playlist playlist);
 
-    void addToPlayList(Playlist playlist, AnimationInfo animationInfo);
+    void addToPlayList(Playlist playlist, AnimationMetaData animationMetaData);
 }

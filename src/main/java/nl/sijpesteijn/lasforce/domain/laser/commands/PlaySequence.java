@@ -5,11 +5,11 @@ import nl.sijpesteijn.lasforce.domain.SequenceInfo;
 /**
  * @author Gijs Sijpesteijn
  */
-public class PlaySequence extends Command {
+public class PlaySequence extends Request {
     private SequenceInfo sequenceInfo;
 
     public PlaySequence(SequenceInfo sequenceInfo) {
-        super("play_sequence");
+        super("play_sequence_request");
         this.sequenceInfo = sequenceInfo;
     }
 
