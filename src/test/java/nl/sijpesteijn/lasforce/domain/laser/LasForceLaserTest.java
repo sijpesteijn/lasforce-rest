@@ -25,8 +25,10 @@ public class LasForceLaserTest {
     public void setUp() throws Exception {
         Configuration config = new BaseConfiguration();
         config.addProperty("bb.hostName","127.0.0.1");
-        config.addProperty("bb.port","5555");
+        config.addProperty("bb.communication_port","5555");
+        config.addProperty("bb.monitor_port","5556");
         laser = new LasForceLaser(config);
+        Thread.sleep(1000);
     }
 
     @Test
@@ -77,6 +79,7 @@ public class LasForceLaserTest {
         sequence.setLoopCount(1);
         sequence.setAnimations(Arrays.asList(animation));
         SocketResponse socketResponse = laser.playSequence(sequence);
+        Thread.sleep(10000);
         assertNotNull(socketResponse);
     }
 

@@ -13,4 +13,11 @@ public class OkResponse implements SocketResponse {
     public void setOriginalRequest(String originalRequest) {
         this.originalRequest = originalRequest;
     }
+
+    @Override
+    public String toString() {
+        return "OkResponse{" +
+                "originalRequest='" + originalRequest + '\'' +
+                '}';
+    }
 }

@@ -6,10 +6,10 @@ import nl.sijpesteijn.lasforce.domain.SequenceInfo;
 import nl.sijpesteijn.lasforce.domain.laser.commands.PlaySequence;
 import nl.sijpesteijn.lasforce.domain.laser.commands.Request;
 import nl.sijpesteijn.lasforce.domain.laser.commands.StoreAnimationDataRequest;
+import nl.sijpesteijn.lasforce.domain.laser.responses.MessageResponse;
 import nl.sijpesteijn.lasforce.domain.laser.responses.OkResponse;
 import nl.sijpesteijn.lasforce.domain.laser.responses.SendAnimationDataResponse;
 import nl.sijpesteijn.lasforce.domain.laser.responses.SocketResponse;
-import nl.sijpesteijn.lasforce.domain.laser.responses.response_handlers.ResponseHandlerFactory;
 import nl.sijpesteijn.lasforce.exceptions.LaserException;
 import nl.sijpesteijn.lasforce.services.AnimationMetaData;
 import org.apache.commons.configuration.Configuration;
@@ -28,15 +28,17 @@ import java.net.URISyntaxException;
 /**
  * @author Gijs Sijpesteijn
  */
-public class LasForceLaser implements Laser {
+public class LasForceLaser implements Laser, LaserMonitor {
     private static final Logger LOGGER = LoggerFactory.getLogger(LasForceLaser.class);
     private ObjectMapper objectMapper = new ObjectMapper();
     private Configuration configuration;
-    private ResponseHandlerFactory factory = ResponseHandlerFactory.getInstance();
 
     @Inject
-    public LasForceLaser(Configuration configuration) throws IOException {
+    public LasForceLaser(Configuration configuration) throws Exception {
         this.configuration = configuration;
+//        LaForceLaserMonitor monitor = new LaForceLaserMonitor(configuration, this);
+//        Thread laserMonitor = new Thread(monitor);
+//        laserMonitor.start();
     }
 
     @Override
@@ -52,7 +54,7 @@ public class LasForceLaser implements Laser {
     private SocketResponse play(Request request) throws LaserException {
         SocketResponse socketResponse = null;
         try {
-            Socket client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.port"));
+            Socket client = new Socket(configuration.getString("bb.hostname"), configuration.getInt("bb.communication_port"));
             LOGGER.debug("Connected to server: " + client.getRemoteSocketAddress());
             PrintStream printStream = new PrintStream(client.getOutputStream());
             DataInputStream in = new DataInputStream(client.getInputStream());
@@ -99,24 +101,6 @@ public class LasForceLaser implements Laser {
         return socketResponse;
     }
 
-//    private Request getResponseRequest(SocketResponse socketResponse) throws IOException, URISyntaxException {
-//        if (socketResponse instanceof SendAnimationDataResponse) {
-//            SendAnimationDataResponse sdr = (SendAnimationDataResponse) socketResponse;
-//            IldaReader reader = new IldaReader();
-//            for(AnimationMetaData animation : sdr.getAnimations()) {
-//                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animation.getName() + ".ild"));
-//                ilda.setId(animation.getId());
-//                ilda.setLastUpdate(animation.getLastUpdate());
-//                StoreAnimationDataRequest sadr = new StoreAnimationDataRequest(new AnimationData(animation, ilda));
-//            }
-//            return null; //sadr;
-//        }
-//        if (socketResponse instanceof ErrorResponse) {
-//            LOGGER.debug("Error response received %s",socketResponse.toString());
-//        }
-//        throw new IllegalStateException("Cant create response request for: " + socketResponse.toString());
-//    }
-
     private void sendMessage(PrintStream printStream, Request request) throws IOException, URISyntaxException {
         String commandJson = objectMapper.writeValueAsString(request);
         if (commandJson.length() > 200) {
@@ -145,5 +129,10 @@ public class LasForceLaser implements Laser {
         String strLen = "000000000000";
         String size = strLen.substring(0, strLen.length() - String.valueOf(length).length()) + length;
         return size;
+    }
+
+    @Override
+    public void socketMessage(MessageResponse messageResponse) {
+        System.out.println("Message received. " + messageResponse);
     }
 }
