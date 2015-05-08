@@ -2,7 +2,7 @@ package nl.sijpesteijn.lasforce.rest;
 
 import nl.sijpesteijn.lasforce.rest.dto.Playlist;
 import nl.sijpesteijn.lasforce.services.AnimationMetaData;
-import nl.sijpesteijn.lasforce.services.IPlaylistService;
+import nl.sijpesteijn.lasforce.services.PlaylistService;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -20,7 +20,7 @@ import java.util.List;
 public class PlaylistResource {
 
     @Inject
-    private IPlaylistService playlistService;
+    private PlaylistService playlistService;
 
     @GET
     @Path("/list")

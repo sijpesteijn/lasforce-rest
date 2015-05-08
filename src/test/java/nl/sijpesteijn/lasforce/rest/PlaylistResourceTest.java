@@ -2,12 +2,14 @@ package nl.sijpesteijn.lasforce.rest;
 
 import com.sun.jersey.api.client.ClientResponse;
 import com.sun.jersey.api.client.WebResource;
+import org.junit.Ignore;
 import org.junit.Test;
 
 import javax.ws.rs.core.MediaType;
 
 import static org.junit.Assert.assertEquals;
 
+@Ignore
 public class PlaylistResourceTest {
     private GrizzlyProvider grizzly = new GrizzlyProvider();
 

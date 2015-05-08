@@ -12,29 +12,29 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /**
  * @author: Gijs Sijpesteijn
  */
-public class LaserFormatConverter {
+public class IldaToLasForceConverter {
     private int VIEWPORT_MIDDLE = 326;
-    private int ZOOM = 100;
+    private int ZOOM = 1;
 
     public static void main(String[] args) throws IOException, URISyntaxException {
-        LaserFormatConverter converter = new LaserFormatConverter();
+        IldaToLasForceConverter converter = new IldaToLasForceConverter();
         IldaReader reader = new IldaReader();
         final String name = "ilddolf.ild";
         Ilda content = reader.read(new File("domain/src/main/resources/examples/" + name));
 
-        LasForceAnimation animation = converter.convertIlda(name, content);
+        LasForceAnimation animation = converter.convert(content);
         System.out.println(animation);
 
     }
 
-    public LasForceAnimation convertIlda(final String name, Ilda ildaFormat) {
+    public LasForceAnimation convert(Ilda ildaFormat) {
         LasForceAnimation animation = new LasForceAnimation();
-        animation.setName(name);
         for (CoordinateHeader coordinateHeader : ildaFormat.getCoordinateHeaders()) {
             Layer layer = new Layer();
             layer.setName(coordinateHeader.getFrameName());
@@ -51,21 +51,19 @@ public class LaserFormatConverter {
         List<Child> children = new ArrayList<Child>();
         boolean wasBlanked = true;
         Path path = null;
-        List<Segment> subSegments = new ArrayList<Segment>();
+        List<List<Segment>> subSegments = new ArrayList();
         for (CoordinateData coordinateData : coordinateDatas) {
             if (!coordinateData.isBlanked()) {
                 if (wasBlanked) {
                     path = new Path();
                     children.add(path);
                     path.setApplyMatrix(true);
-                    List<List<Segment>> segments = new ArrayList<List<Segment>>();
-                    segments.add(subSegments);
-                    path.setSegments(segments);
+                    path.setSegments(subSegments);
                 }
                 Segment segment = new Segment(VIEWPORT_MIDDLE + coordinateData.getX()/ZOOM,
-                        VIEWPORT_MIDDLE + coordinateData.getY()/100);
+                        VIEWPORT_MIDDLE + coordinateData.getY()/ZOOM);
 
-                subSegments.add(segment);
+                subSegments.add(Arrays.asList(segment));
                 ColorData colorData = coordinateData.getColorData();
                 double blue = getPercentage(colorData.getBlue1());
                 double green = getPercentage(colorData.getGreen1());

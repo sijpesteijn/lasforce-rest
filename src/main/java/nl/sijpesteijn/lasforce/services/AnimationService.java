@@ -1,71 +1,103 @@
 package nl.sijpesteijn.lasforce.services;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
-import com.mongodb.*;
-import com.mongodb.util.JSON;
+import com.mongodb.BasicDBObject;
+import com.mongodb.MongoClient;
+import nl.sijpesteijn.ilda.Ilda;
+import nl.sijpesteijn.ilda.IldaReader;
 import nl.sijpesteijn.lasforce.domain.Animation;
-import nl.sijpesteijn.lasforce.domain.LaserAnimation;
-import nl.sijpesteijn.lasforce.domain.MongoToAnimationSerializer;
-import nl.sijpesteijn.lasforce.domain.SequenceInfo;
+import nl.sijpesteijn.lasforce.domain.LasForceAnimation;
 import nl.sijpesteijn.lasforce.exceptions.LaserException;
+import nl.sijpesteijn.lasforce.laser.IldaToLasForceConverter;
+import org.apache.commons.configuration.Configuration;
+import org.apache.commons.io.FileUtils;
+import org.mongodb.morphia.Datastore;
+import org.mongodb.morphia.Morphia;
 
 import javax.inject.Singleton;
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 /**
  * @author: Gijs Sijpesteijn
  */
 @Singleton
-public class AnimationService implements IAnimationService {
-    @Inject
-    private Provider<MongoClient> mongoProvider;
+public class AnimationService {
+    private final String dataStore;
+    private final int defaultFramerate;
+    private IldaReader reader = new IldaReader();
+    private Morphia morphia = new Morphia();
+    private Datastore lasforce;
 
-    @Override
-    public Animation load(final String name) throws IOException, URISyntaxException {
-        DB db = mongoProvider.get().getDB("lasforce");
-        DBCollection animations = db.getCollection("animations");
-        DBObject dbObject = animations.findOne(new BasicDBObject("name", name));
-        String json = JSON.serialize(dbObject);
-        GsonBuilder builder = new GsonBuilder();
-        builder.registerTypeAdapter(LaserAnimation.class, new MongoToAnimationSerializer());
-        Gson gson = builder.create();
-        LaserAnimation animation = gson.fromJson(json, LaserAnimation.class);
+    @Inject
+    public AnimationService(Provider<MongoClient> mongoProvider, Configuration configuration) {
+        this.dataStore = configuration.getString("data_store");
+        this.defaultFramerate = configuration.getInt("default_framerate");
+        lasforce = morphia.createDatastore(mongoProvider.get(), "lasforce");
+    }
+
+    public Animation getAnimation(final long id) throws LaserException {
+        Animation animation = lasforce.find(Animation.class).field("_id").equal(id).get();
         return animation;
     }
 
-    @Override
-    public List<AnimationMetaData> getAnimations() {
-        DB db = mongoProvider.get().getDB("lasforce");
-        List<AnimationMetaData> animations = new ArrayList();
-        DBCollection collection = db.getCollection("animations");
-        DBCursor cursor = collection.find();
-        while(cursor.hasNext()) {
-            DBObject next = cursor.next();
-            AnimationMetaData info = new AnimationMetaData();
-            info.setName((String) next.get("name"));
-            info.setLastUpdate((String) next.get("lastUpdate"));
-            animations.add(info);
-        }
+    public List<Animation> getAnimations() throws LaserException {
+        List<Animation> animations = lasforce.find(Animation.class).asList();
         return animations;
     }
 
-    @Override
-    public void save(final Animation animation) throws LaserException {
-        DB db = mongoProvider.get().getDB("lasforce");
-        DBCollection animations = db.getCollection("animations");
-        String json = new Gson().toJson(animation);
-        DBObject dbObject = (DBObject) JSON.parse(json);
-        animations.save(dbObject);
+
+    public Animation addAnimation(Animation animation) throws LaserException {
+        long id = new Date().getTime();
+        BasicDBObject dbObject = new BasicDBObject("_id", id)
+                .append("name", animation.getName())
+                .append("lastUpdate", id)
+                .append("frameRate", animation.getFrameRate())
+                .append("fileName", animation.getFileName());
+
+        lasforce.save(dbObject);
+        animation.setId(id);
+        animation.setLastUpdate(id);
+        return animation;
     }
 
-    @Override
-    public List<AnimationMetaData> getAnimations(SequenceInfo sequenceInfo) {
-        return null;
+    public void update(final Animation animation) throws LaserException {
     }
+
+    public Animation uploadAnimation(String fileName, byte[] data) throws LaserException {
+        Animation animation = new Animation();
+        try {
+            FileUtils.writeByteArrayToFile(new File(this.dataStore + fileName), data);
+            animation.setName(fileName);
+            animation.setFrameRate(defaultFramerate);
+            animation.setFileName(fileName);
+            animation = addAnimation(animation);
+            return animation;
+        } catch (IOException e) {
+            throw new LaserException(e);
+        }
+    }
+
+    public LasForceAnimation getLasForceAnimation(long id) throws LaserException {
+        Animation animation = getAnimation(id);
+        try {
+            Ilda ilda = reader.read(new File(this.dataStore + animation.getFileName()));
+            IldaToLasForceConverter converter = new IldaToLasForceConverter();
+            AnimationMetaData metaData = new AnimationMetaData();
+            metaData.setFrameRate(animation.getFrameRate());
+            metaData.setName(animation.getName());
+            LasForceAnimation lasForceAnimation = converter.convert(ilda);
+            lasForceAnimation.setMetaData(metaData);
+            return lasForceAnimation;
+        } catch (IOException e) {
+            throw new LaserException(e);
+        } catch (URISyntaxException e) {
+            throw new LaserException(e);
+        }
+    }
+
 }

@@ -1,6 +1,6 @@
 package nl.sijpesteijn.lasforce.domain.laser;
 
-import nl.sijpesteijn.ilda.IldaFormat;
+import nl.sijpesteijn.ilda.Ilda;
 import nl.sijpesteijn.ilda.IldaReader;
 import nl.sijpesteijn.lasforce.domain.SequenceInfo;
 import nl.sijpesteijn.lasforce.domain.laser.commands.PlaySequence;
@@ -36,9 +36,9 @@ public class LasForceLaser implements Laser, LaserMonitor {
     @Inject
     public LasForceLaser(Configuration configuration) throws Exception {
         this.configuration = configuration;
-//        LaForceLaserMonitor monitor = new LaForceLaserMonitor(configuration, this);
-//        Thread laserMonitor = new Thread(monitor);
-//        laserMonitor.start();
+        LasForceLaserMonitor monitor = new LasForceLaserMonitor(configuration, this);
+        Thread laserMonitor = new Thread(monitor);
+        laserMonitor.start();
     }
 
     @Override
@@ -86,7 +86,7 @@ public class LasForceLaser implements Laser, LaserMonitor {
             SendAnimationDataResponse sdr = (SendAnimationDataResponse) socketResponse;
             IldaReader reader = new IldaReader();
             for(AnimationMetaData animation : sdr.getAnimations()) {
-                IldaFormat ilda = reader.read(new File("./src/main/resources/examples/" + animation.getName() + ".ild"));
+                Ilda ilda = reader.read(new File("./src/main/resources/examples/" + animation.getName() + ".ild"));
                 ilda.setId(animation.getId());
                 ilda.setLastUpdate(animation.getLastUpdate());
                 StoreAnimationDataRequest sadr = new StoreAnimationDataRequest(new AnimationData(animation, ilda));

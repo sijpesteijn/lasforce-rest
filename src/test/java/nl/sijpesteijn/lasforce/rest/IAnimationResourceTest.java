@@ -8,7 +8,7 @@ import javax.ws.rs.core.MediaType;
 
 import static org.junit.Assert.assertEquals;
 
-public class AnimationResourceTest {
+public class IAnimationResourceTest {
     private GrizzlyProvider grizzly = new GrizzlyProvider();
 
     @Test

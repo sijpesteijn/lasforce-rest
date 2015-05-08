@@ -86,4 +86,8 @@ public class PointText implements Child {
     public int getLeading() {
         return leading;
     }
+
+    public String getType() {
+        return type;
+    }
 }

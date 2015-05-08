@@ -1,22 +1,16 @@
 package nl.sijpesteijn.lasforce.domain;
 
+import nl.sijpesteijn.lasforce.services.AnimationMetaData;
+
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author: Gijs Sijpesteijn
  */
-public class LaserAnimation implements Animation {
-    private String name;
+public class LasForceAnimation implements IAnimation {
+    private AnimationMetaData metaData;
     private List<Layer> layers = new ArrayList<Layer>();
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(final String name) {
-        this.name = name;
-    }
 
     public List<Layer> getLayers() {
         return layers;
@@ -30,11 +24,11 @@ public class LaserAnimation implements Animation {
         layers.add(layer);
     }
 
-    @Override
-    public String toString() {
-        return "{" +
-                "\"name\": \"" + name + "\"" +
-                ", \"layers\":" + layers +
-                "}";
+    public AnimationMetaData getMetaData() {
+        return metaData;
+    }
+
+    public void setMetaData(AnimationMetaData metaData) {
+        this.metaData = metaData;
     }
 }

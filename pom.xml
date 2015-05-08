@@ -114,6 +114,11 @@
             <version>2.12.5</version>
         </dependency>
         <dependency>
+            <groupId>org.mongodb.morphia</groupId>
+            <artifactId>morphia</artifactId>
+            <version>0.109</version>
+        </dependency>
+        <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
             <version>${slf4j.version}</version>
@@ -134,6 +139,17 @@
             <version>1.2.16</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-websocket</artifactId>
+            <version>8.1.16.v20140903</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.atmosphere</groupId>
+            <artifactId>atmosphere-guice</artifactId>
+            <version>2.2.1</version>
+        </dependency>
         <!--<dependency>-->
             <!--<groupId>org.eclipse.jetty</groupId>-->
             <!--<artifactId>jetty-server</artifactId>-->
@@ -177,6 +193,11 @@
             <artifactId>jersey-grizzly2</artifactId>
             <version>${jersey.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.websocket</groupId>
+            <artifactId>javax.websocket-api</artifactId>
+            <version>1.1</version>
         </dependency>
         <!--<dependency>-->
             <!--<groupId>org.jboss.resteasy</groupId>-->

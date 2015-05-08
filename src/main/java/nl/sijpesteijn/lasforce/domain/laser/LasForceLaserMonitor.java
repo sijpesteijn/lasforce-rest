@@ -2,6 +2,7 @@ package nl.sijpesteijn.lasforce.domain.laser;
 
 import com.google.inject.Inject;
 import nl.sijpesteijn.lasforce.domain.laser.responses.MessageResponse;
+import nl.sijpesteijn.lasforce.domain.laser.responses.SocketResponse;
 import org.apache.commons.configuration.Configuration;
 import org.codehaus.jackson.map.ObjectMapper;
 
@@ -12,13 +13,13 @@ import java.net.Socket;
 /**
  * @author Gijs Sijpesteijn
  */
-public class LaForceLaserMonitor implements Runnable {
+public class LasForceLaserMonitor implements Runnable {
     private Configuration configuration;
     private LaserMonitor laserMonitor;
     private ObjectMapper objectMapper = new ObjectMapper();
 
     @Inject
-    public LaForceLaserMonitor(Configuration configuration, LaserMonitor laserMonitor) {
+    public LasForceLaserMonitor(Configuration configuration, LaserMonitor laserMonitor) {
         this.configuration = configuration;
         this.laserMonitor = laserMonitor;
     }
@@ -35,8 +36,8 @@ public class LaForceLaserMonitor implements Runnable {
                     break;
                 }
                 if (socketResponseJson != null) {
-                    MessageResponse socketResponse = objectMapper.readValue(socketResponseJson, MessageResponse.class);
-                    laserMonitor.socketMessage(socketResponse);
+                    SocketResponse socketResponse = objectMapper.readValue(socketResponseJson, SocketResponse.class);
+                    laserMonitor.socketMessage((MessageResponse) socketResponse);
                 }
             }
         } catch (IOException e) {

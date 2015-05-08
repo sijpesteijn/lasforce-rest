@@ -1,7 +1,7 @@
 package nl.sijpesteijn.lasforce.domain;
 
 
-import nl.sijpesteijn.ilda.IldaFormat;
+import nl.sijpesteijn.ilda.Ilda;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
@@ -11,9 +11,9 @@ import java.util.List;
  * @author: Gijs Sijpesteijn
  */
 @XmlRootElement
-public class IldaAnimation implements Animation {
+public class IldaIAnimation implements IAnimation {
     private String name;
-    private IldaFormat ildaFormat;
+    private Ilda ildaFormat;
 
     @XmlElement
     public void setName(final String name) {
@@ -21,11 +21,11 @@ public class IldaAnimation implements Animation {
     }
 
     @XmlElement
-    public void setIldaFormat(final IldaFormat ildaFormat) {
+    public void setIldaFormat(final Ilda ildaFormat) {
         this.ildaFormat = ildaFormat;
     }
 
-    public IldaFormat getIldaFormat() {
+    public Ilda getIldaFormat() {
         return ildaFormat;
     }
 
@@ -33,7 +33,6 @@ public class IldaAnimation implements Animation {
         return name;
     }
 
-    @Override
     public List<Layer> getLayers() {
         return null;
     }

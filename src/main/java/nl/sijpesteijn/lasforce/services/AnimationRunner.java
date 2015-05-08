@@ -11,12 +11,11 @@ import javax.inject.Singleton;
  * @author Gijs Sijpesteijn
  */
 @Singleton
-public class AnimationRunner implements IAnimationRunner {
+public class AnimationRunner {
     private static final Logger LOG = LoggerFactory.getLogger(AnimationRunner.class);
     @Inject
     private Laser laser;
 
-    @Override
     public void playAnimation(AnimationMetaData animationMetaData) {
         LOG.debug("Starting animation:" + animationMetaData.getName());
 //        try {

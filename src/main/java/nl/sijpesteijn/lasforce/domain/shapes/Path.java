@@ -52,4 +52,8 @@ public class Path implements Child {
     public void setSegments(final List<List<Segment>> segments) {
         this.segments = segments;
     }
+
+    public String getType() {
+        return type;
+    }
 }

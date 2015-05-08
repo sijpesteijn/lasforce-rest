@@ -25,4 +25,8 @@ public class Group implements Child {
     public boolean isApplyMatrix() {
         return applyMatrix;
     }
+
+    public String getType() {
+        return type;
+    }
 }
