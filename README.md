@@ -1,6 +1,7 @@
 Lasforce backend
 
 Using:
- - Guice
- - Jersey
- - Kotlin!!
+
+ Guice
+ Jersey
+ Kotlin!!
