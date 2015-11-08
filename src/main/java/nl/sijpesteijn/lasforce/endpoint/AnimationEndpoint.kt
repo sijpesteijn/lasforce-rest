@@ -32,7 +32,7 @@ class AnimationEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @Throws(LaserException::class)
     fun get(): List<AnimationMetadata> {
-        return animationService.getAnimations()
+        return animationService.getAnimationsMetadata()
     }
 
     @GET
@@ -40,7 +40,16 @@ class AnimationEndpoint {
     @Produces(MediaType.APPLICATION_JSON)
     @Throws(LaserException::class)
     fun loadAnimation(@PathParam("id") id: Long): AnimationMetadata {
-        return animationService.getAnimation(id)
+        return animationService.getAnimationMetadata(id)
+    }
+
+    @DELETE
+    @Path("{id}")
+    @Consumes(MediaType.APPLICATION_JSON)
+    @Throws(LaserException::class)
+    fun deleteAnimation(@PathParam("id") id: Long):Response {
+        animationService.deleteAnimation(id)
+        return Response.ok().build()
     }
 
     @GET
