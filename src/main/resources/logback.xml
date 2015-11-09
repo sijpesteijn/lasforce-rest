@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="US-ASCII"?>
+<configuration>
+	<include resource="org/springframework/boot/logging/logback/base.xml"/>
+
+	<appender name="file" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<file>target/lasforce.log</file>
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger - %msg%n</pattern>
+		</encoder>
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+			<fileNamePattern>target/lasforce-%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
+				<maxFileSize>100MB</maxFileSize>
+			</timeBasedFileNamingAndTriggeringPolicy>
+			<maxHistory>9</maxHistory>
+		</rollingPolicy>
+	</appender>
+
+	<logger name="nl.sijpesteijn" level="TRACE"/>
+    <logger name="com.mongodb" level="WARN"/>
+	<logger name="org.apache" level="WARN"/>
+
+	<logger name="org.springframework" level="WARN"/>
+	<logger name="org.springframework.security" level="INFO"/>
+
+	<root level="INFO">
+		<appender-ref ref="file"/>
+	</root>
+</configuration>

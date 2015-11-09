@@ -3,10 +3,7 @@ package nl.sijpesteijn.lasforce
 import nl.sijpesteijn.ilda.CoordinateData
 import nl.sijpesteijn.ilda.CoordinateHeader
 import nl.sijpesteijn.ilda.Ilda
-import nl.sijpesteijn.lasforce.domain.Frame
-import nl.sijpesteijn.lasforce.domain.Point
-import nl.sijpesteijn.lasforce.domain.Shape
-import nl.sijpesteijn.lasforce.domain.StrokeColor
+import nl.sijpesteijn.lasforce.domain.*
 import java.util.*
 
 /**
@@ -39,8 +36,10 @@ class IldaConverter {
         for (coordinateData in coordinateDatas) {
             if (!coordinateData.isBlanked()) {
                 val element = selected.get(selectedIndex)
-                if (element.size > 0 && !coordinateData.equals(element.get(element.size - 1))) {
-                    val sub = selected.get(selectedIndex)
+                val sub = selected.get(selectedIndex)
+                if (element.size == 0) {
+                    sub.add(coordinateData)
+                } else if (!coordinateData.equals(element.get(element.size - 1))) {
                     sub.add(coordinateData)
                 }
                 wasBlanked = false
@@ -68,18 +67,19 @@ class IldaConverter {
                     point.strokeWidth = 4
                     shapes.add(point)
                 } else {
-                    val index = 0
+                    var index = 0
                     val colorData = subSelected.get(0).getColorData()
                     val blue = getPercentage(colorData.getBlue1())
                     val green = getPercentage(colorData.getGreen1())
                     val red = getPercentage(colorData.getRed1())
                     val color = StrokeColor(blue, green, red)
-                    // Path path = new Path(index,true,"Path_" + shapeId++,new ArrayList<Segment>(),color,4);
-                    // shapes.add(path);
-                    // for(CoordinateData point: subSelected) {
-                    // Segment segment = new Segment(createPoint(point, index++));
-                    // path.getSegments().add(segment);
-                    // }
+                    val segments = ArrayList<Segment>()
+                    for(point in subSelected) {
+                        val segment = Segment(createPoint(point, index++))
+                        segments.add(segment)
+                    }
+                    val path = Path(index,true,4,color,segments,false,"Path_${shapeId++}")
+                    shapes.add(path)
                 }
             }
         }

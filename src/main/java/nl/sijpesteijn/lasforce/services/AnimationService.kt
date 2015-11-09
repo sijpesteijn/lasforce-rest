@@ -1,16 +1,17 @@
 package nl.sijpesteijn.lasforce.services
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
+import com.fasterxml.jackson.module.kotlin.readValue
 import com.mongodb.BasicDBObject
 import com.mongodb.DBCollection
 import nl.sijpesteijn.ilda.IldaReader
+import nl.sijpesteijn.lasforce.IldaConverter
 import nl.sijpesteijn.lasforce.domain.AnimationMetadata
 import nl.sijpesteijn.lasforce.domain.Frame
-import nl.sijpesteijn.lasforce.IldaConverter
 import nl.sijpesteijn.lasforce.domain.LasForceAnimation
 import nl.sijpesteijn.lasforce.guice.MongoDBProvider
 import org.apache.commons.configuration.Configuration
 import org.apache.commons.io.FileUtils
-import com.fasterxml.jackson.module.kotlin.*
 import java.io.File
 import java.util.*
 import javax.inject.Inject
@@ -57,7 +58,7 @@ class AnimationService {
     }
 
     fun uploadAnimation(fileName: String, data: ByteArray?) {
-        val name = fileName.split("\\.")[0];
+        val name = fileName.split(".")[0];
         val metadata = AnimationMetadata(System.currentTimeMillis(), name, this.defaultFramerate)
         val convert = IldaConverter()
         val reader = IldaReader()
@@ -76,7 +77,7 @@ class AnimationService {
 
     fun saveAnimationMetadata(animationMetadata: AnimationMetadata):AnimationMetadata {
         animationMetadata.lastUpdate = System.currentTimeMillis()
-        val dbObject = BasicDBObject("_id", animationMetadata.id).append("name",animationMetadata.name).append("framerate",animationMetadata.frameRate).append("lastupdate",animationMetadata.lastUpdate)
+        val dbObject = BasicDBObject("_id", animationMetadata.id).append("name",animationMetadata.name).append("framerate",animationMetadata.framerate).append("lastupdate",animationMetadata.lastUpdate)
         collection.save(dbObject)
         return animationMetadata
     }

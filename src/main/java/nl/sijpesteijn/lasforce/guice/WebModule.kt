@@ -4,6 +4,7 @@ import com.google.inject.servlet.ServletModule
 import com.sun.jersey.guice.spi.container.servlet.GuiceContainer
 import nl.sijpesteijn.lasforce.endpoint.SettingsEndpoint
 import nl.sijpesteijn.lasforce.rest.AnimationEndpoint
+import nl.sijpesteijn.lasforce.websocket.LaserStatusWebSocketServlet
 import org.codehaus.jackson.jaxrs.JacksonJsonProvider
 import java.util.*
 import javax.inject.Singleton
@@ -23,6 +24,9 @@ class WebModule: ServletModule() {
         val params = HashMap<String, String>();
         params.put(JERSEY_API_JSON_POJO_MAPPING_FEATURE, "true");
         bind(JacksonJsonProvider::class.java).`in`(Singleton::class.java)
-        serve("/rest/*").with(GuiceContainer::class.java, params);
+        serve("/rest/*").with(GuiceContainer::class.java, params)
+        bind(LaserStatusWebSocketServlet::class.java).`in`(Singleton::class.java)
+        serve("/ws/laser").with(LaserStatusWebSocketServlet::class.java)
+
     }
 }
