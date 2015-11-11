@@ -21,17 +21,19 @@ class LaserStatusWebSocketServlet : WebSocketServlet() {
 }
 
 class LaserStatusWebSocket(monitor: Monitor) :WebSocket.OnTextMessage,WebSocket.Connection {
-    val connections = ArrayList<WebSocket.Connection>()
+    val connections = ArrayList<LaserMonitorConnection>()
     val monitor = monitor
     val LOG = LoggerFactory.getLogger(LaserStatusWebSocket::class.java);
 
     override fun onOpen(connection: WebSocket.Connection) {
         LOG.debug("Connection added ${connection}")
-        LaserMonitorConnection(connection, monitor).run()
-        connections.add(connection);
+        val laserMonitorConnection = LaserMonitorConnection(connection, monitor)
+        laserMonitorConnection.run()
+        connections.add(laserMonitorConnection);
     }
 
     override fun onMessage(message: String?) {
+        println("Msg: ${message}")
         throw UnsupportedOperationException()
     }
 
