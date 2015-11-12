@@ -8,3 +8,5 @@ interface Request {}
 data class InstructionRequest(val key:String, var value:Any? = "") : Request {
     val command:String = "instruction_request"
 }
+
+data class FrameId(val frameId:Int)

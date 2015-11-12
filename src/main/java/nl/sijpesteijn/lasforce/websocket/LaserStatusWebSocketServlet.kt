@@ -1,5 +1,6 @@
 package nl.sijpesteijn.lasforce.websocket
 
+import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import nl.sijpesteijn.lasforce.laser.LaserMonitorConnection
 import nl.sijpesteijn.lasforce.laser.Monitor
 import org.eclipse.jetty.websocket.WebSocket
@@ -20,73 +21,27 @@ class LaserStatusWebSocketServlet : WebSocketServlet() {
     }
 }
 
-class LaserStatusWebSocket(monitor: Monitor) :WebSocket.OnTextMessage,WebSocket.Connection {
+class LaserStatusWebSocket(monitor: Monitor) :WebSocket.OnBinaryMessage,WebSocket.OnTextMessage {
     val connections = ArrayList<LaserMonitorConnection>()
     val monitor = monitor
-    val LOG = LoggerFactory.getLogger(LaserStatusWebSocket::class.java);
+    val LOG = LoggerFactory.getLogger(LaserStatusWebSocket::class.java)
+    val mapper = jacksonObjectMapper()
 
     override fun onOpen(connection: WebSocket.Connection) {
-        LOG.debug("Connection added ${connection}")
+        println("Connection added ${connection}")
         val laserMonitorConnection = LaserMonitorConnection(connection, monitor)
-        laserMonitorConnection.run()
+//        laserMonitorConnection.run()
         connections.add(laserMonitorConnection);
     }
 
     override fun onMessage(message: String?) {
         println("Msg: ${message}")
-        throw UnsupportedOperationException()
     }
 
-    override fun close() {
-        throw UnsupportedOperationException()
-    }
-
-    override fun close(status: Int, message: String?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun disconnect() {
-        throw UnsupportedOperationException()
-    }
-
-    override fun getMaxBinaryMessageSize(): Int {
-        throw UnsupportedOperationException()
-    }
-
-    override fun getMaxIdleTime(): Int {
-        throw UnsupportedOperationException()
-    }
-
-    override fun getMaxTextMessageSize(): Int {
-        throw UnsupportedOperationException()
-    }
-
-    override fun getProtocol(): String? {
-        throw UnsupportedOperationException()
-    }
-
-    override fun isOpen(): Boolean {
-        throw UnsupportedOperationException()
-    }
-
-    override fun sendMessage(message: ByteArray?, p1: Int, p2: Int) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun sendMessage(message: String?) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun setMaxBinaryMessageSize(size: Int) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun setMaxIdleTime(idleTime: Int) {
-        throw UnsupportedOperationException()
-    }
-
-    override fun setMaxTextMessageSize(size: Int) {
-        throw UnsupportedOperationException()
+    override fun onMessage(data: ByteArray?, offset: Int, length: Int) {
+//        val frameId = mapper.readValue(data,offset,length,FrameId::class.java)
+//        println("MSG: $frameId.frameId")
+        println("MSG BIN")
     }
 
     override fun onClose(status: Int, message: String?) {
