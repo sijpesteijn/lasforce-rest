@@ -11,18 +11,26 @@
     <description>Lasforce Rest</description>
 
     <properties>
-        <kotlin.version>1.0.0-beta-1103</kotlin.version>
+        <kotlin.version>1.0.0</kotlin.version>
         <slf4j.version>1.7.10</slf4j.version>
         <jersey.version>1.19</jersey.version>
+        <jetty.version>9.2.11.v20150529</jetty.version>
     </properties>
+
+    <repositories>
+        <repository>
+            <id>jebrains-all</id>
+            <url>http://repository.jetbrains.com/all</url>
+        </repository>
+    </repositories>
 
     <build>
         <finalName>lasforce</finalName>
         <plugins>
             <plugin>
-                <groupId>org.mortbay.jetty</groupId>
+                <groupId>org.eclipse.jetty</groupId>
                 <artifactId>jetty-maven-plugin</artifactId>
-                <version>8.1.16.v20140903</version>
+                <version>9.3.6.v20151106</version>
                 <configuration>
                     <scanIntervalSeconds>1</scanIntervalSeconds>
                     <scanTargetPatterns>
@@ -35,12 +43,15 @@
                             </includes>
                         </scanTargetPattern>
                     </scanTargetPatterns>
-                    <connectors>
-                        <connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">
-                            <port>9002</port>
-                            <maxIdleTime>60000</maxIdleTime>
-                        </connector>
-                    </connectors>
+                    <httpConnector>
+                        <port>9002</port>
+                    </httpConnector>
+                    <!--<connectors>-->
+                        <!--<connector implementation="org.eclipse.jetty.server.nio.SelectChannelConnector">-->
+                            <!--<port>9002</port>-->
+                            <!--<maxIdleTime>60000</maxIdleTime>-->
+                        <!--</connector>-->
+                    <!--</connectors>-->
                     <webApp>
                         <contextPath>/lasforce</contextPath>
                     </webApp>
@@ -81,6 +92,29 @@
     </build>
 
     <dependencies>
+
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty</groupId>
+            <artifactId>jetty-servlet</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>javax-websocket-server-impl</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.eclipse.jetty.websocket</groupId>
+            <artifactId>websocket-server</artifactId>
+            <version>${jetty.version}</version>
+        </dependency>
+
         <dependency>
             <groupId>nl.sijpesteijn</groupId>
             <artifactId>ilda</artifactId>
@@ -157,11 +191,6 @@
             <version>1.2.16</version>
         </dependency>
 
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-websocket</artifactId>
-            <version>8.1.16.v20140903</version>
-        </dependency>
 
         <dependency>
             <groupId>org.atmosphere</groupId>
@@ -206,6 +235,11 @@
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
             <version>2.6.3-2</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jetbrains.kotlin</groupId>
+            <artifactId>kotlin-js-library</artifactId>
+            <version>${kotlin.version}</version>
         </dependency>
     </dependencies>
 

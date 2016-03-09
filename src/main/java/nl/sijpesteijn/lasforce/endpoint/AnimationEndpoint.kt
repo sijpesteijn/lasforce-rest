@@ -20,13 +20,8 @@ import javax.ws.rs.core.Response
 @Singleton
 @Path("animations")
 @Consumes(MediaType.APPLICATION_JSON)
-class AnimationEndpoint {
-    val animationService:AnimationService
-
-    @Inject
-    constructor(animationService: AnimationService) {
-        this.animationService = animationService
-    }
+class AnimationEndpoint @Inject constructor(animationService: AnimationService) {
+    val animationService = animationService
 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
