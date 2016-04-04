@@ -1,6 +1,7 @@
 package nl.sijpesteijn.lasforce.laser
 
 import nl.sijpesteijn.lasforce.laser.laserRequests.ConnectRequest
+import nl.sijpesteijn.lasforce.laser.laserRequests.DisconnectRequest
 import nl.sijpesteijn.lasforce.laser.laserRequests.LaserRequest
 import nl.sijpesteijn.lasforce.laser.laserResponses.ConnectResponse
 import nl.sijpesteijn.lasforce.laser.laserResponses.LaserResponse
@@ -59,6 +60,10 @@ class LasforceLaser @Inject constructor(connection: ConnectionService) : Laser {
     override fun execute(request: LaserRequest): LaserResponse {
         if (request is ConnectRequest) {
             connection.reconnect();
+            return ConnectResponse(connection.isConnected())
+        }
+        if (request is DisconnectRequest) {
+            connection.close()
             return ConnectResponse(connection.isConnected())
         }
         if (!connection.isConnected()) {

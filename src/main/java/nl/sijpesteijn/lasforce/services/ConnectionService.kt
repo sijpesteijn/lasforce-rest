@@ -3,10 +3,14 @@ package nl.sijpesteijn.lasforce.services
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.google.inject.Inject
 import nl.sijpesteijn.lasforce.laser.laserRequests.LaserRequest
+import nl.sijpesteijn.lasforce.laser.laserResponses.InfoResponse
 import nl.sijpesteijn.lasforce.laser.laserResponses.LaserResponse
 import nl.sijpesteijn.lasforce.laser.laserResponses.NotConnectedResponse
+import nl.sijpesteijn.lasforce.laser.laserResponses.OkResponse
 import org.apache.commons.configuration.Configuration
 import org.slf4j.LoggerFactory
+import java.io.BufferedReader
+import java.io.InputStreamReader
 import java.io.PrintStream
 import java.net.Socket
 
@@ -57,14 +61,27 @@ class ConnectionService {
     fun execute(request: LaserRequest): LaserResponse {
         if (socket != null) {
             val message = mapper.writeValueAsString(request)
-            val printStream = PrintStream(socket?.getOutputStream())
+            val printStream = PrintStream(socket?.outputStream)
             printStream.print(getLength(message))
             printStream.print(message)
             printStream.flush()
             println(message)
-            return NotConnectedResponse()
+//            if (request is InfoRequest) {
+//                return getInfoResponse()
+//            }
+            return OkResponse()
         }
         return NotConnectedResponse()
+    }
+
+    private fun getInfoResponse(): LaserResponse {
+        val isr = BufferedReader(InputStreamReader(socket?.inputStream))
+        var line = isr.readLine()
+        while(line != null) {
+            println("Line: " + line);
+            line = isr.readLine()
+        }
+        return InfoResponse(info="")
     }
 
 }

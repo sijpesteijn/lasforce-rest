@@ -1,8 +1,7 @@
 package nl.sijpesteijn.lasforce.rest
 
 import com.sun.jersey.multipart.FormDataMultiPart
-import nl.sijpesteijn.lasforce.domain.AnimationMetadata
-import nl.sijpesteijn.lasforce.domain.LasForceAnimation
+import nl.sijpesteijn.lasforce.domain.Animation
 import nl.sijpesteijn.lasforce.exception.LaserException
 import nl.sijpesteijn.lasforce.services.AnimationService
 import org.apache.commons.io.IOUtils
@@ -26,7 +25,7 @@ class AnimationEndpoint @Inject constructor(animationService: AnimationService) 
     @GET
     @Produces(MediaType.APPLICATION_JSON)
     @Throws(LaserException::class)
-    fun get(): List<AnimationMetadata> {
+    fun get(): List<Animation> {
         return animationService.getAnimationsMetadata()
     }
 
@@ -34,8 +33,8 @@ class AnimationEndpoint @Inject constructor(animationService: AnimationService) 
     @Path("/{id}")
     @Produces(MediaType.APPLICATION_JSON)
     @Throws(LaserException::class)
-    fun loadAnimation(@PathParam("id") id: Long): AnimationMetadata {
-        return animationService.getAnimationMetadata(id)
+    fun loadAnimation(@PathParam("id") id: Long): Animation {
+        return animationService.getLasForceAnimation(id)
     }
 
     @DELETE
@@ -51,7 +50,7 @@ class AnimationEndpoint @Inject constructor(animationService: AnimationService) 
     @Path("/{id}/data")
     @Produces(MediaType.APPLICATION_JSON)
     @Throws(LaserException::class)
-    fun loadLasForceAnimation(@PathParam("id") id: Long): LasForceAnimation {
+    fun loadLasForceAnimation(@PathParam("id") id: Long): Animation {
         return animationService.getLasForceAnimation(id)
     }
 
